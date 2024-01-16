@@ -1,0 +1,11 @@
+<div>
+<span>Kategorie</span>
+
+<ul>
+{% for category in categories %}
+<li>
+<a href="{{ path('app_category_show',{slug: category.slug }) }}" >{{ category.getName() }}</a>
+</li>
+{% endfor %}
+</ul>
+</div>
