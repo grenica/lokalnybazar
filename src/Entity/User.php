@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -26,6 +28,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Provider::class)]
+    private Collection $providers;
+
+    public function __construct()
+    {
+        $this->providers = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -95,5 +105,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Provider>
+     */
+    public function getProviders(): Collection
+    {
+        return $this->providers;
+    }
+
+    public function addProvider(Provider $provider): static
+    {
+        if (!$this->providers->contains($provider)) {
+            $this->providers->add($provider);
+            $provider->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProvider(Provider $provider): static
+    {
+        if ($this->providers->removeElement($provider)) {
+            // set the owning side to null (unless already changed)
+            if ($provider->getUser() === $this) {
+                $provider->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
